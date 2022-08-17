@@ -11,13 +11,69 @@ import Config from "./Config";
 import Data from "./Data";
 
 const Time = () => {
-  const [sessionCount, setSessionCount] = useRecoilState(sessionCounterState);
-  const [breakCount, setBreakCount] = useRecoilState(breakState);
+  const [sessionCounter, setSessionCounter] =
+    useRecoilState(sessionCounterState);
+  const [breakCounter, setBreakCounter] = useRecoilState(breakState);
   const [counterScreenSession, setCounterScreenSession] =
-    useState(sessionCount);
+    useState(sessionCounter);
   const [play, setPlay] = useRecoilState(playState);
   const [session, setSession] = useRecoilState(sessionState);
 
+  const handleSessionCounter = (e) => {
+    let number = e.currentTarget.dataset.session;
+    if (number === "up") {
+      if (sessionCounter < 3600) {
+        return setSessionCounter(sessionCounter + 60);
+      } else {
+        return sessionCounter;
+      }
+    } else {
+      if (sessionCounter >= 120) {
+        return setSessionCounter(sessionCounter - 60);
+      } else {
+        return sessionCounter;
+      }
+    }
+  };
+
+  const handleBreakCounter = (e) => {
+    let number = e.currentTarget.dataset.breaker;
+    if (number === "up") {
+      if (breakCounter < 3600) {
+        return setBreakCounter(breakCounter + 60);
+      } else {
+        return breakCounter;
+      }
+    } else {
+      if (breakCounter >= 120) {
+        return setBreakCounter(breakCounter - 60);
+      } else {
+        return breakCounter;
+      }
+    }
+  };
+
+  const handleClear = () => {
+    setPlay(false);
+    setSession(true);
+    setBreakCounter(300);
+    setSessionCounter(1500);
+    document.getElementById("beep").pause();
+    document.getElementById("beep").currentTime = 0;
+    return setCounterScreenSession(1500);
+  };
+
+  const handleCounterScreen = () => {
+    if (play === false) {
+      console.log("Pause to play");
+    } else {
+      console.log("Play to Pause");
+    }
+    console.log(counterScreenSession);
+    setPlay((play) => !play);
+  };
+
+  //Dose countdown
   useEffect(() => {
     if (play && counterScreenSession > 0) {
       const timer = window.setInterval(() => {
@@ -31,91 +87,47 @@ const Time = () => {
     }
   }, [play, counterScreenSession]);
 
+  //Supposed to reset break
   useEffect(() => {
     if (counterScreenSession === 0 && session) {
       document.getElementById("beep").play();
-      setCounterScreenSession(breakCount);
+      setCounterScreenSession(breakCounter);
       setSession(!session);
     }
+
     if (counterScreenSession === 0 && !session) {
-      setCounterScreenSession(sessionCount);
-      setSession(!session);
+      setCounterScreenSession(sessionCounter);
+      setSession(session);
     }
-  }, [counterScreenSession, session, breakCount, sessionCount]);
+  }, [counterScreenSession, session, breakCounter, sessionCounter]);
 
+  //Changes session count
   useEffect(() => {
-    return setCounterScreenSession(sessionCount);
-  }, [sessionCount, breakCount]);
-
-  const handleSessionCount = (e) => {
-    let number = e.currentTarget.dataset.session;
-    if (number === "up") {
-      if (sessionCount < 3600) {
-        return setSessionCount(sessionCount + 60);
-      }
-      return sessionCount;
-    } else {
-      if (sessionCount >= 120) {
-        return setSessionCount(sessionCount - 60);
-      }
-      return sessionCount;
-    }
-  };
-
-  const handleBreakCount = (e) => {
-    let number = e.currentTarget.dataset.breaker;
-    if (number === "up") {
-      if (breakCount < 3600) {
-        return setBreakCount(breakCount + 60);
-      }
-      return breakCount;
-    } else {
-      if (breakCount >= 120) {
-        return setBreakCount(breakCount - 60);
-      }
-      return breakCount;
-    }
-  };
-
-  const handleClear = () => {
-    setPlay(false);
-    setSession(true);
-    setBreakCount(300);
-    setSessionCount(1500);
-    document.getElementById("beep").pause();
-    document.getElementById("beep").currentTime = 0;
-    return setCounterScreenSession(1500);
-  };
-
-  const handleCounterScreen = () => {
-    if (play === false) {
-      console.log("Pause to play");
-    }
-    console.log("Play to Pause");
-    console.log(counterScreenSession);
-    setPlay((play) => !play);
-  };
+    return setCounterScreenSession(sessionCounter);
+  }, [sessionCounter, breakCounter]);
 
   const timeCounter = () => {
-    let minuets = Math.floor(counterScreenSession / 60);
+    let minutes = Math.floor(counterScreenSession / 60);
     let seconds = counterScreenSession % 60;
 
-    if (minuets < 10) {
-      minuets = "0" + minuets;
+    if (minutes < 10) {
+      minutes = "0" + minutes;
     }
+
     if (seconds < 10) {
       seconds = "0" + seconds;
     }
-    return `${minuets}:${seconds}`;
+
+    return `${minutes}:${seconds}`;
   };
 
   return (
     <Container>
       <Config
-        handleBreakCount={handleBreakCount}
-        handleSessionCount={handleSessionCount}
-        sessionCount={sessionCount}
-        breakCount={breakCount}
+        handleBreakCounter={handleBreakCounter}
+        handleSessionCounter={handleSessionCounter}
+        sessionCounter={sessionCounter}
+        breakCounter={breakCounter}
       />
       <Data
         counterScreenSession={counterScreenSession}
@@ -123,9 +135,9 @@ const Time = () => {
         handleCounterScreen={handleCounterScreen}
         handleClear={handleClear}
         session={session}
-        sessionCount={sessionCount}
+        sessionCounter={sessionCounter}
         timeCounter={timeCounter}
-        breakCount={breakCount}
+        breakCounter={breakCounter}
       />
     </Container>
   );

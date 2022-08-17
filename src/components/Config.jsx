@@ -3,27 +3,27 @@ import { Button, Container } from "react-bootstrap";
 import { AiFillPlusCircle, AiFillMinusCircle } from "react-icons/ai";
 
 const Config = ({
-  handleBreakCount,
-  handleSessionCount,
-  sessionCount,
-  breakCount,
+  handleBreakCounter,
+  handleSessionCounter,
+  sessionCounter,
+  breakCounter,
 }) => {
   return (
     <div>
       <Container>
         <Container id="break-label">Break Length</Container>
-        <Container id="break-length">{Math.floor(breakCount / 60)}</Container>
+        <Container id="break-length">{Math.floor(breakCounter / 60)}</Container>
         <Button
           id="break-increment"
           data-breaker="up"
-          onClick={handleBreakCount}
+          onClick={handleBreakCounter}
         >
           <AiFillPlusCircle />
         </Button>
         <Button
           id="break-decrement"
           data-breaker="down"
-          onClick={handleBreakCount}
+          onClick={handleBreakCounter}
         >
           <AiFillMinusCircle />
         </Button>
@@ -32,19 +32,19 @@ const Config = ({
       <Container>
         <Container id="session-label">Session Length</Container>
         <Container id="session-length">
-          {Math.floor(sessionCount / 60)}
+          {Math.floor(sessionCounter / 60)}
         </Container>
         <Button
           id="session-increment"
           data-session="up"
-          onClick={handleSessionCount}
+          onClick={handleSessionCounter}
         >
           <AiFillPlusCircle />
         </Button>
         <Button
           id="session-decrement"
           data-session="down"
-          onClick={handleSessionCount}
+          onClick={handleSessionCounter}
         >
           <AiFillMinusCircle />
         </Button>
