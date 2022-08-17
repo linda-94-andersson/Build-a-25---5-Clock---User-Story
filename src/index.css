@@ -14,3 +14,9 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 }
+
+.app {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
