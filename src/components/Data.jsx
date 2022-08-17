@@ -14,8 +14,7 @@ const Data = ({
     <div>
       <Container id="timer-label">{session ? "Session" : "Break"}</Container>
       <Container id="time-left">{timeCounter()}</Container>
-      {/* <audio id="beep" src="../assets/sound/spooky-gongwav-14904.mp3"></audio> */}
-      <audio id="beep" src="./sound/spooky-gongwav-14904.mp3"></audio>
+      <audio id="beep" preload="auto" src="./sound/Tada-sound.mp3"></audio>
       <Container>
         {play === false ? (
           <Button id="start_stop" onClick={handleCounterScreen}>
