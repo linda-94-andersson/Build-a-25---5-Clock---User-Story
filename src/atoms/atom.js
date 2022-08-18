@@ -2,12 +2,12 @@ import { atom } from "recoil";
 
 export const breakState = atom({
     key: "breakState",
-    default: 5,
+    default: 300,
 });
 
 export const sessionState = atom({
     key: "sessionState",
-    default: 25,
+    default: 60*25,
 });
 
 export const playState = atom({

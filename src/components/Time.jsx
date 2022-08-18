@@ -1,6 +1,8 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { breakState, sessionState, playState } from "../atoms/atom";
 import { useRecoilState } from "recoil";
+import moment from "moment";
+import momentDurationFormatSetup from "moment-duration-format";
 import { Button, Container } from "react-bootstrap";
 import {
   AiFillPlusCircle,
@@ -13,53 +15,51 @@ import { VscDebugRestart } from "react-icons/vsc";
 function Time() {
   const [breakTime, setBreakTime] = useRecoilState(breakState);
   const [session, setSession] = useRecoilState(sessionState);
+  const [timeLeft, setTimeLeft] = useState(session);
   const [timer, setTimer] = useState(1500);
   const [play, setPlay] = useRecoilState(playState);
 
   const handleBreakDec = () => {
-    if (breakTime <= 1) {
-      return;
+    const newBreakTime = breakTime - 60;
+    if (newBreakTime < 0) {
+      setBreakTime(0);
+    } else {
+      setBreakTime(newBreakTime);
     }
-    setBreakTime(breakTime - 1);
   };
 
   const handleBreakInc = () => {
-    if (breakTime >= 60) {
-      return;
-    }
-    setBreakTime(breakTime + 1);
+    setBreakTime(breakTime + 60);
   };
 
+  const breakLenthInMinutes = moment.duration(breakTime, "s").minutes();
+
   const handleSessionDec = () => {
-    if (session <= 1) {
-      return;
+    const newSession = session - 60;
+    if (newSession < 0) {
+      setSession(0);
+    } else {
+      setSession(newSession);
     }
-    setSession(session - 1);
   };
 
   const handleSessionInc = () => {
-    if (session >= 60) {
-      return;
-    }
-    setSession(session + 1);
+    setSession(session + 60);
   };
 
-  const timeCounter = () => {
-    let minuets = Math.floor(session);
-    let seconds = timer % 60;
+  const sessionLengthInMinuets = moment.duration(session, "s").minutes();
 
-    if (minuets < 10) {
-      minuets = "0" + minuets;
-    }
-    if (seconds < 10) {
-      seconds = "0" + seconds;
-    }
-    return `${minuets}:${seconds}`;
-  };
+  momentDurationFormatSetup(moment);
+
+  const formattedTimeLeft = moment.duration(timeLeft, "s").format("mm:ss");
+
+  useEffect(() => {
+    setTimeLeft(session);
+  }, [session]);
 
   const handleReset = () => {
-    setBreakTime(5);
-    setSession(25);
+    setBreakTime(300);
+    setSession(1500);
     setTimer(1500);
     setPlay(true);
     document.getElementById("beep").pause();
@@ -100,7 +100,7 @@ function Time() {
     <Container>
       <Container>
         <p id="break-label">Break Length</p>
-        <p id="break-length">{breakTime}</p>
+        <p id="break-length">{breakLenthInMinutes}</p>
         <Button id="break-decrement" onClick={handleBreakDec}>
           <AiFillMinusCircle />
         </Button>
@@ -108,7 +108,7 @@ function Time() {
           <AiFillPlusCircle />
         </Button>
         <p id="session-label">Session Length</p>
-        <p id="session-length">{session}</p>
+        <p id="session-length">{sessionLengthInMinuets}</p>
         <Button id="session-decrement" onClick={handleSessionDec}>
           <AiFillMinusCircle />
         </Button>
@@ -118,7 +118,7 @@ function Time() {
       </Container>
       <Container>
         <p id="timer-label">{timer ? "Session" : "Break"}</p>
-        <h2 id="time-left">{timeCounter(timer)}</h2>
+        <h2 id="time-left">{formattedTimeLeft}</h2>
       </Container>
       <Container>
         <Button id="start_stop" onClick={handlePlayPause}>
