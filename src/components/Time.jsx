@@ -40,7 +40,7 @@ function Time() {
         setTimeLeft(session);
       }
     }
-  }, [breakTime, currentType, session, timeLeft]);
+  }, [timeLeft]);
 
   const handleBreakDec = () => {
     const newBreakTime = breakTime - 60;
