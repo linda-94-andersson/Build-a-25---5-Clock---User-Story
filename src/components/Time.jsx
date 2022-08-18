@@ -1,191 +1,134 @@
-import React, { useRef, useState } from "react";
-import {
-  displayState,
-  breakState,
-  sessionState,
-  timerOnState,
-  onBreakState,
-} from "../atoms/atom";
+import React, { useRef, useState, useEffect } from "react";
+import { breakState, sessionState, playState } from "../atoms/atom";
 import { useRecoilState } from "recoil";
 import { Button, Container } from "react-bootstrap";
-import { AiFillPauseCircle, AiFillPlayCircle } from "react-icons/ai";
+import {
+  AiFillPlusCircle,
+  AiFillMinusCircle,
+  AiFillPauseCircle,
+  AiFillPlayCircle,
+} from "react-icons/ai";
 import { VscDebugRestart } from "react-icons/vsc";
-import Control from "./Control";
-import { accurateInterval } from "../utils/data";
 
 function Time() {
-  // const [displayTime, setDisplayTime] = useRecoilState(displayState);
-  // const [breakTime, setBreakTime] = useRecoilState(breakState);
-  // const [sessionTime, setSessionTime] = useRecoilState(sessionState);
-  // const [timerOn, setTimerOn] = useRecoilState(timerOnState);
-  // const [onBreak, setOnBreak] = useRecoilState(onBreakState);
-  const [displayTime, setDisplayTime] = useState(60*25);
-  const [breakTime, setBreakTime] = useState(60*5);
-  const [sessionTime, setSessionTime] = useState(60*25);
-  const [timerOn, setTimerOn] = useState(false);
-  const [onBreak, setOnBreak] = useState(false);
-  const myAudio = useRef();
-  const displayTimerRef = useRef();
-  const timeoutRef = useRef();
-  const onBreakRef = useRef(null);
-  const displayVisualTimerRef = useRef();
+  const [breakTime, setBreakTime] = useRecoilState(breakState);
+  const [session, setSession] = useRecoilState(sessionState);
+  const [timer, setTimer] = useState(1500);
+  const [play, setPlay] = useRecoilState(playState);
 
-  const timerControl = () => {
-    if (!timerOn) {
-      setTimerOn(true);
-      beginCountDown();
-    } else if (timeoutRef.current.timeoutID) {
-      timeoutRef.current.cancel();
-      setTimerOn(false);
+  const handleBreakDec = () => {
+    if (breakTime <= 1) {
+      return;
     }
+    setBreakTime(breakTime - 1);
   };
 
-  const beginCountDown = () => {
-    let timeOutInfo = accurateInterval(() => {
-      phaseControl();
-    }, 1000);
-    timeoutRef.current = timeOutInfo;
-  };
-
-  const displayElapsedPercentage = (isBreak, currentTick) => {
-    let percentage = "0%";
-    if (isBreak) {
-      percentage =
-        Math.abs(((currentTick - breakTime) / breakTime) * 100) + "%";
-    } else {
-      percentage =
-        Math.abs(((currentTick - sessionTime) / sessionTime) * 100) + "%";
+  const handleBreakInc = () => {
+    if (breakTime >= 60) {
+      return;
     }
-    displayVisualTimerRef.current = percentage;
+    setBreakTime(breakTime + 1);
   };
 
-  const phaseControl = () => {
-    let time;
-
-    setDisplayTime((prev) => {
-      displayTimerRef.current = prev;
-      return prev - 1;
-    });
-
-    time = displayTimerRef.current;
-
-    if (time <= 0) {
-      setOnBreak((prev) => {
-        let previousState = prev;
-        onBreakRef.current = !previousState;
-        return !prev;
-      });
-
-      if (timeoutRef.current) {
-        timeoutRef.current.cancel();
-
-        if (onBreakRef.current === false) {
-          displayTimerRef.current = sessionTime;
-          playBuzzer();
-        } else if (onBreakRef.current === true) {
-          displayTimerRef.current = breakTime;
-          playBuzzer();
-        }
-        setDisplayTime(displayTimerRef.current);
-        beginCountDown();
-      }
+  const handleSessionDec = () => {
+    if (session <= 1) {
+      return;
     }
-    displayElapsedPercentage(onBreakRef.current, time);
+    setSession(session - 1);
   };
 
-  const resetPomodoro = () => {
-    setDisplayTime(60 * 25);
-    setBreakTime(60 * 5);
-    setSessionTime(60 * 25);
-    setOnBreak(false);
-    setTimerOn(false);
-    if (timeoutRef.current) {
-      timeoutRef.current.cancel();
+  const handleSessionInc = () => {
+    if (session >= 60) {
+      return;
     }
-    myAudio.current.pause();
-    myAudio.current.currentTime = 0;
-    displayVisualTimerRef.current = "0%";
+    setSession(session + 1);
   };
 
-  const changeTime = (timeAmmount, type) => {
-    if (type === "break") {
-      if (
-        (breakTime >= 60 * 60 && timeAmmount > 0) ||
-        (breakTime <= 60 && timeAmmount < 0)
-      ) {
-        return;
-      }
-      setBreakTime((prev) => prev + timeAmmount);
-    } else if (type === "session") {
-      if (
-        (sessionTime >= 60 * 60 && timeAmmount > 0) ||
-        (sessionTime <= 60 && timeAmmount < 0)
-      ) {
-        return;
-      }
-      setSessionTime((prev) => prev + timeAmmount);
-      if (!timerOn) {
-        setDisplayTime(sessionTime + timeAmmount);
-      }
+  const timeCounter = () => {
+    let minuets = Math.floor(session);
+    let seconds = timer % 60;
+
+    if (minuets < 10) {
+      minuets = "0" + minuets;
     }
-  };
-
-  const formatTime = (time, type = "display") => {
-    if (type === "display") {
-      let minutes = Math.floor(time / 60);
-      let seconds = time % 60;
-
-      return (
-        (minutes < 10 ? "0" + minutes : minutes) +
-        ":" +
-        (seconds < 10 ? "0" + seconds : seconds)
-      );
-    } else if (type === "control") {
-      let minutes = Math.ceil(time / 60);
-      return minutes;
+    if (seconds < 10) {
+      seconds = "0" + seconds;
     }
+    return `${minuets}:${seconds}`;
   };
 
-  const playBuzzer = () => {
-    myAudio.current.currentTime = 0;
-    myAudio.current.play();
+  const handleReset = () => {
+    setBreakTime(5);
+    setSession(25);
+    setTimer(1500);
+    setPlay(true);
+    document.getElementById("beep").pause();
+    document.getElementById("beep").currentTime = 0;
   };
+
+  const playTimer = () => {
+    if (timer === 0) {
+      console.log("Finished!");
+      playSound();
+    }
+    setPlay(false);
+  };
+
+  const pauseTimer = () => {
+    setPlay(true);
+  };
+
+  const handlePlayPause = () => {
+    if (!play) {
+      playTimer();
+    }
+    pauseTimer();
+  };
+
+  const playSound = () => {
+    document.getElementById("beep").play();
+  };
+
+  // useEffect(
+  //   () => {
+  //     setTimer(timer - 1);
+  //   },[playTimer],
+  //   1000
+  // );
 
   return (
     <Container>
       <Container>
-        <Control
-          type="break"
-          length={formatTime(breakTime, "control")}
-          changeTime={changeTime}
-        />
-        <Control
-          type="session"
-          length={formatTime(sessionTime, "control")}
-          changeTime={changeTime}
-        />
-      </Container>
-      <Container>
-        <p id="timer-label">{onBreak ? "Break" : "Session"}</p>
-        <p id="time-left" ref={displayTimerRef}>
-          {formatTime(displayTime)}
-        </p>
-        <span style={{ height: displayVisualTimerRef.current }}></span>
-      </Container>
-      <Container>
-        <Button id="start_stop" onClick={() => timerControl()}>
-          {!timerOn ? <AiFillPlayCircle /> : <AiFillPauseCircle />}
+        <p id="break-label">Break Length</p>
+        <p id="break-length">{breakTime}</p>
+        <Button id="break-decrement" onClick={handleBreakDec}>
+          <AiFillMinusCircle />
         </Button>
-        <Button id="reset" onClick={() => resetPomodoro()}>
+        <Button id="break-increment" onClick={handleBreakInc}>
+          <AiFillPlusCircle />
+        </Button>
+        <p id="session-label">Session Length</p>
+        <p id="session-length">{session}</p>
+        <Button id="session-decrement" onClick={handleSessionDec}>
+          <AiFillMinusCircle />
+        </Button>
+        <Button id="session-increment" onClick={handleSessionInc}>
+          <AiFillPlusCircle />
+        </Button>
+      </Container>
+      <Container>
+        <p id="timer-label">{timer ? "Session" : "Break"}</p>
+        <h2 id="time-left">{timeCounter(timer)}</h2>
+      </Container>
+      <Container>
+        <Button id="start_stop" onClick={handlePlayPause}>
+          {play ? <AiFillPlayCircle /> : <AiFillPauseCircle />}
+        </Button>
+        <Button id="reset" onClick={handleReset}>
           <VscDebugRestart />
         </Button>
       </Container>
-      <audio
-        id="beep"
-        preload="auto"
-        ref={myAudio}
-        src="./sound/Tada-sound.mp3"
-      ></audio>
+      <audio id="beep" preload="auto" src="./sound/Tada-sound.mp3"></audio>
     </Container>
   );
 }
