@@ -21,8 +21,3 @@ export const typeState
         key: "typeState",
         default: "Session",
     });
-
-export const playState = atom({
-    key: "playState",
-    default: true,
-});

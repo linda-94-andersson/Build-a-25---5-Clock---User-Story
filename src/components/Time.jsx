@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   breakState,
   sessionState,
   intervalState,
-  playState,
   typeState,
 } from "../atoms/atom";
 import { useRecoilState } from "recoil";
@@ -24,8 +23,7 @@ function Time() {
   const [intervalId, setIntervalId] = useRecoilState(intervalState);
   const [timeLeft, setTimeLeft] = useState(session);
   const [currentType, setCurrentType] = useRecoilState(typeState);
-  const [timer, setTimer] = useState(1500);
-  const [play, setPlay] = useRecoilState(playState);
+  const audioElement = useRef(null);
 
   const handleBreakDec = () => {
     const newBreakTime = breakTime - 60;
@@ -68,9 +66,13 @@ function Time() {
   }, [session]);
 
   const handleReset = () => {
+    audioElement.current.load();
+    clearInterval(intervalId);
+    setIntervalId(null);
+    setCurrentType("Session");
     setBreakTime(300);
     setSession(1500);
-    setTimer(1500);
+    setTimeLeft(60 * 25);
     document.getElementById("beep").pause();
     document.getElementById("beep").currentTime = 0;
   };
@@ -88,6 +90,7 @@ function Time() {
           if (newTimeLeft >= 0) {
             return prevTimeLeft - 1;
           }
+          audioElement.current.play();
           if (currentType === "Session") {
             setCurrentType("Break");
             setTimeLeft(breakTime);
@@ -99,10 +102,6 @@ function Time() {
       }, 1000);
       setIntervalId(newIntervalId);
     }
-  };
-
-  const playSound = () => {
-    document.getElementById("beep").play();
   };
 
   return (
@@ -137,7 +136,12 @@ function Time() {
           <VscDebugRestart />
         </Button>
       </Container>
-      <audio id="beep" preload="auto" src="./sound/Tada-sound.mp3"></audio>
+      <audio
+        id="beep"
+        preload="auto"
+        src="./sound/Tada-sound.mp3"
+        ref={audioElement}
+      ></audio>
     </Container>
   );
 }
