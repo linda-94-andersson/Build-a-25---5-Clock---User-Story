@@ -7,8 +7,20 @@ export const breakState = atom({
 
 export const sessionState = atom({
     key: "sessionState",
-    default: 60*25,
+    default: 60 * 25,
 });
+
+export const intervalState
+    = atom({
+        key: "intervalState",
+        default: null,
+    });
+
+export const typeState
+    = atom({
+        key: "typeState",
+        default: "Session",
+    });
 
 export const playState = atom({
     key: "playState",

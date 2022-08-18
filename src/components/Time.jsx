@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { breakState, sessionState, playState } from "../atoms/atom";
+import {
+  breakState,
+  sessionState,
+  intervalState,
+  playState,
+  typeState,
+} from "../atoms/atom";
 import { useRecoilState } from "recoil";
 import moment from "moment";
 import momentDurationFormatSetup from "moment-duration-format";
@@ -15,7 +21,9 @@ import { VscDebugRestart } from "react-icons/vsc";
 function Time() {
   const [breakTime, setBreakTime] = useRecoilState(breakState);
   const [session, setSession] = useRecoilState(sessionState);
+  const [intervalId, setIntervalId] = useRecoilState(intervalState);
   const [timeLeft, setTimeLeft] = useState(session);
+  const [currentType, setCurrentType] = useRecoilState(typeState);
   const [timer, setTimer] = useState(1500);
   const [play, setPlay] = useRecoilState(playState);
 
@@ -51,7 +59,9 @@ function Time() {
 
   momentDurationFormatSetup(moment);
 
-  const formattedTimeLeft = moment.duration(timeLeft, "s").format("mm:ss");
+  const formattedTimeLeft = moment
+    .duration(timeLeft, "s")
+    .format("mm:ss", { trim: false });
 
   useEffect(() => {
     setTimeLeft(session);
@@ -61,40 +71,39 @@ function Time() {
     setBreakTime(300);
     setSession(1500);
     setTimer(1500);
-    setPlay(true);
     document.getElementById("beep").pause();
     document.getElementById("beep").currentTime = 0;
   };
 
-  const playTimer = () => {
-    if (timer === 0) {
-      console.log("Finished!");
-      playSound();
-    }
-    setPlay(false);
-  };
-
-  const pauseTimer = () => {
-    setPlay(true);
-  };
+  const isStatred = intervalId != null;
 
   const handlePlayPause = () => {
-    if (!play) {
-      playTimer();
+    if (isStatred) {
+      clearInterval(intervalId);
+      setIntervalId(null);
+    } else {
+      const newIntervalId = setInterval(() => {
+        setTimeLeft((prevTimeLeft) => {
+          const newTimeLeft = prevTimeLeft - 1;
+          if (newTimeLeft >= 0) {
+            return prevTimeLeft - 1;
+          }
+          if (currentType === "Session") {
+            setCurrentType("Break");
+            setTimeLeft(breakTime);
+          } else if (currentType === "Break") {
+            setCurrentType("Session");
+            setTimeLeft(session);
+          }
+        });
+      }, 1000);
+      setIntervalId(newIntervalId);
     }
-    pauseTimer();
   };
 
   const playSound = () => {
     document.getElementById("beep").play();
   };
-
-  // useEffect(
-  //   () => {
-  //     setTimer(timer - 1);
-  //   },[playTimer],
-  //   1000
-  // );
 
   return (
     <Container>
@@ -117,12 +126,12 @@ function Time() {
         </Button>
       </Container>
       <Container>
-        <p id="timer-label">{timer ? "Session" : "Break"}</p>
+        <p id="timer-label">{currentType}</p>
         <h2 id="time-left">{formattedTimeLeft}</h2>
       </Container>
       <Container>
         <Button id="start_stop" onClick={handlePlayPause}>
-          {play ? <AiFillPlayCircle /> : <AiFillPauseCircle />}
+          {!isStatred ? <AiFillPlayCircle /> : <AiFillPauseCircle />}
         </Button>
         <Button id="reset" onClick={handleReset}>
           <VscDebugRestart />
