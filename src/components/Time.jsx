@@ -25,45 +25,60 @@ function Time() {
   const [currentType, setCurrentType] = useRecoilState(typeState);
   const audioElement = useRef(null);
 
+  useEffect(() => {
+    setTimeLeft(session);
+  }, [session]);
+
+  useEffect(() => {
+    if (timeLeft === 0) {
+      audioElement.current.play();
+      if (currentType === "Session") {
+        setCurrentType("Break");
+        setTimeLeft(breakTime);
+      } else if (currentType === "Break") {
+        setCurrentType("Session");
+        setTimeLeft(session);
+      }
+    }
+  }, [breakTime, currentType, session, timeLeft]);
+
   const handleBreakDec = () => {
     const newBreakTime = breakTime - 60;
-    if (newBreakTime < 0) {
-      setBreakTime(0);
-    } else {
+    if (newBreakTime > 0) {
       setBreakTime(newBreakTime);
     }
   };
 
   const handleBreakInc = () => {
-    setBreakTime(breakTime + 60);
+    const newBreak = breakTime + 60;
+    if (newBreak <= 60 * 60) {
+      setBreakTime(breakTime + 60);
+    }
   };
 
-  const breakLenthInMinutes = moment.duration(breakTime, "s").minutes();
+  const breakLenthInMinutes = moment.duration(breakTime, "s").asMinutes();
 
   const handleSessionDec = () => {
     const newSession = session - 60;
-    if (newSession < 0) {
-      setSession(0);
-    } else {
+    if (newSession > 0) {
       setSession(newSession);
     }
   };
 
   const handleSessionInc = () => {
-    setSession(session + 60);
+    const newSession = session + 60;
+    if (newSession <= 60 * 60) {
+      setSession(session + 60);
+    }
   };
 
-  const sessionLengthInMinuets = moment.duration(session, "s").minutes();
+  const sessionLengthInMinuets = moment.duration(session, "s").asMinutes();
 
   momentDurationFormatSetup(moment);
 
   const formattedTimeLeft = moment
     .duration(timeLeft, "s")
     .format("mm:ss", { trim: false });
-
-  useEffect(() => {
-    setTimeLeft(session);
-  }, [session]);
 
   const handleReset = () => {
     audioElement.current.load();
@@ -85,20 +100,7 @@ function Time() {
       setIntervalId(null);
     } else {
       const newIntervalId = setInterval(() => {
-        setTimeLeft((prevTimeLeft) => {
-          const newTimeLeft = prevTimeLeft - 1;
-          if (newTimeLeft >= 0) {
-            return prevTimeLeft - 1;
-          }
-          audioElement.current.play();
-          if (currentType === "Session") {
-            setCurrentType("Break");
-            setTimeLeft(breakTime);
-          } else if (currentType === "Break") {
-            setCurrentType("Session");
-            setTimeLeft(session);
-          }
-        });
+        setTimeLeft((prevTimeLeft) => prevTimeLeft - 1);
       }, 1000);
       setIntervalId(newIntervalId);
     }
