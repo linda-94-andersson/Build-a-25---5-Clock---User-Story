@@ -109,32 +109,101 @@ function Time() {
   return (
     <Container>
       <Container>
-        <p id="break-label">Break Length</p>
-        <p id="break-length">{breakLenthInMinutes}</p>
-        <Button id="break-decrement" onClick={handleBreakDec}>
+        <p
+          id="break-label"
+          style={{
+            fontStyle: "italic",
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          Break Length
+        </p>
+        <p
+          id="break-length"
+          style={{ fontSize: 30, display: "flex", justifyContent: "center" }}
+        >
+          {breakLenthInMinutes}
+        </p>
+        <Button
+          id="break-decrement"
+          onClick={handleBreakDec}
+          style={{ fontSize: 25 }}
+        >
           <AiFillMinusCircle />
         </Button>
-        <Button id="break-increment" onClick={handleBreakInc}>
+        <Button
+          id="break-increment"
+          onClick={handleBreakInc}
+          style={{ marginLeft: 45, fontSize: 25 }}
+        >
           <AiFillPlusCircle />
         </Button>
-        <p id="session-label">Session Length</p>
-        <p id="session-length">{sessionLengthInMinuets}</p>
-        <Button id="session-decrement" onClick={handleSessionDec}>
+        <p
+          id="session-label"
+          style={{
+            fontStyle: "italic",
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          Session Length
+        </p>
+        <p
+          id="session-length"
+          style={{
+            fontSize: 30,
+            fontStyle: "bold",
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          {sessionLengthInMinuets}
+        </p>
+        <Button
+          id="session-decrement"
+          onClick={handleSessionDec}
+          style={{ fontSize: 25 }}
+        >
           <AiFillMinusCircle />
         </Button>
-        <Button id="session-increment" onClick={handleSessionInc}>
+        <Button
+          id="session-increment"
+          onClick={handleSessionInc}
+          style={{ marginLeft: 45, fontSize: 25 }}
+        >
           <AiFillPlusCircle />
         </Button>
       </Container>
       <Container>
-        <p id="timer-label">{currentType}</p>
-        <h2 id="time-left">{formattedTimeLeft}</h2>
+        <h2
+          id="timer-label"
+          style={{
+            fontStyle: "bold",
+            fontWeight: 900,
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          {currentType}
+        </h2>
+        <h2 id="time-left" style={{ fontSize: 50 }}>
+          {formattedTimeLeft}
+        </h2>
       </Container>
       <Container>
-        <Button id="start_stop" onClick={handlePlayPause}>
+        <Button
+          id="start_stop"
+          onClick={handlePlayPause}
+          style={{ fontSize: 25 }}
+        >
           {!isStatred ? <AiFillPlayCircle /> : <AiFillPauseCircle />}
         </Button>
-        <Button id="reset" onClick={handleReset}>
+        <Button
+          id="reset"
+          onClick={handleReset}
+          style={{ marginLeft: 45, fontSize: 25 }}
+        >
           <VscDebugRestart />
         </Button>
       </Container>
