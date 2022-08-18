@@ -1,4 +1,17 @@
-# Objective: Build an app that is functionally similar to this: https://codepen.io/freeCodeCamp/full/XpKrrW.
+## Deloyment
+* https://linda-andersson-25-5-clock.netlify.app/ 
+
+## Skills used for this project
+* React
+* Bootstrap
+* Recoil
+* HTML
+* CSS
+* JavaScript
+
+## Requirements
+
+### Objective: Build an app that is functionally similar to this: https://codepen.io/freeCodeCamp/full/XpKrrW.
 
 Fulfill the below user stories and get all of the tests to pass. Use whichever libraries or APIs you need. Give it your own personal style.
 
@@ -59,3 +72,5 @@ You can use any mix of HTML, JavaScript, CSS, Bootstrap, SASS, React, Redux, and
 * User Story #27: The audio element with id="beep" must be 1 second or longer.
 
 * User Story #28: The audio element with id of beep must stop playing and be rewound to the beginning when the element with the id of reset is clicked.
+
+### Disclaimer! The code works during manual testing but doesn't seems to get the FreeCodeCamp test suite pass. 
