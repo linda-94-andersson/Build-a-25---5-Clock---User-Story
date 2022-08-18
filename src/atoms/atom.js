@@ -1,22 +1,27 @@
 import { atom } from "recoil";
 
-export const sessionCounterState = atom({
-    key: "sessionCounterState",
-    default: '25',
+export const displayState = atom({
+    key: "displayState",
+    default: 60*25,
 });
 
 export const breakState = atom({
     key: "breakState",
-    default: "5",
+    default: 60*5,
 });
 
-export const timerCounterState = atom({
-    key: "timerCounterState",
-    default: "SESSION",
+export const sessionState = atom({
+    key: "sessionState",
+    default: 60*25,
 });
 
 
-export const pauseState = atom({
-    key: "pauseState",
-    default: true,
+export const timerOnState = atom({
+    key: "timerOnState",
+    default: false,
+});
+
+export const onBreakState = atom({
+    key: "onBreakSate",
+    default: false
 });
