@@ -1,4 +1,4 @@
-## Deloyment
+## Deployment
 * https://linda-andersson-25-5-clock.netlify.app/ 
 
 ## Skills used for this project
